@@ -1,20 +1,8 @@
-import json
 import os
 
 import httpx
 
-
-async def create_json_data(email_id: int, website: str) -> None:
-    try:
-        with open("data.json", "r", encoding="utf-8") as json_file:
-            data = json.load(json_file)
-    except FileNotFoundError:
-        data = []
-
-    data.append({"id": email_id, "website": website})
-
-    with open("data.json", "w", encoding="utf-8") as json_file:
-        json.dump(data, json_file, ensure_ascii=False, indent=4)
+from core import database
 
 
 async def get_schools_urls():
@@ -32,7 +20,13 @@ async def get_schools_urls():
             for j in range(0, 10):
                 website = data["Result"][j]["Cells"]["WebSite"]
                 print(f"{counter}: {website}")
-                await create_json_data(counter, website)
+                await database.create_json_data(counter, website)
                 counter += 1
         else:
             print(f"Error:\n{response.status_code}")
+
+
+async def get_teachers_urls():
+    teachers_url = await database.get_json_data()
+    for i in range(581):
+        print(teachers_url[i])
