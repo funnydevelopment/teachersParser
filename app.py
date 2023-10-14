@@ -1,12 +1,14 @@
+import asyncio
+
 from dotenv import load_dotenv
 
 from core import services
 
 
-def run_app():
+async def run_app():
     load_dotenv(".env")
-    services.index()
+    await services.get_schools_urls()
 
 
 if __name__ == "__main__":
-    run_app()
+    asyncio.run(run_app())
