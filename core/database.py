@@ -39,3 +39,9 @@ async def create_json_data_2(school_id: int, teacher_cards: list) -> None:
 
     with open(file_2_path, "w", encoding="utf-8") as json_file:
         json.dump(data, json_file, ensure_ascii=False, indent=4)
+
+
+async def get_json_data_2() -> list:
+    with open(file_2_path, "r", encoding="utf-8") as json_file:
+        data = json.load(json_file)
+    return data
