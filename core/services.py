@@ -28,21 +28,21 @@ async def get_schools_urls():
 
 
 async def get_teachers_urls():
-    teachers_url = await database.get_json_data()
-    for i in range(581):
-        print(teachers_url[i])
+    schools_url = await database.get_json_data()
+    for i in range(558, 581):
+        school_url = schools_url[i][str(i + 1)]
 
-        #todo: вытащить ссылку из json, добавить вторую часть о нас и спарсить с помощью супа
-        url = 'https://sch1212sz.mskobr.ru/o-nas/pedagogicheskii-sostav#'
+        url = f"https://{school_url}/o-nas/pedagogicheskii-sostav#"
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
 
         if response.status_code == 200:
             html_content = response.text
-            soup = BeautifulSoup(html_content, 'html.parser')
+            soup = BeautifulSoup(html_content, "html.parser")
 
-            # Найти все элементы <a> с атрибутом href, содержащим "/teacher-card/"
-            teacher_links = soup.find_all('a', href=True, href="/teacher-card/")
-
-            for link in teacher_links:
-                print(link.get_text(strip=True))  # Вывести текст из элемента
+            teacher_links = soup.find_all("a", class_="fio")
+            teacher_url_list = [link.get("href") for link in teacher_links]
+            await database.create_json_data_2(i+1, teacher_url_list)
+            print(f"Школа {i + 1}/581")
+        else:
+            print(f"Error:\n{response.status_code}")
