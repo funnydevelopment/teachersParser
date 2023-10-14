@@ -1,0 +1,28 @@
+#5 - Error: 301
+
+#31 - ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local
+issuer certificate (_ssl.c:1007)
+
+#32 - ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local
+issuer certificate (_ssl.c:1007)
+
+#41 - Error: 404
+
+#42 - Error: 404
+
+#54 - Error: 302
+
+#56 - Error: 403
+
+#195 - Error: 404
+
+#453 - ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local
+issuer certificate (_ssl.c:1007)
+
+#475 - 'kmb-4.mskobr.ru' does not appear to be an IPv4 or IPv6 address
+
+#544 - ssl.SSLWantReadError: The operation did not complete (read) (_ssl.c:2578)
+
+#553 - 'gym1506.mskobr.ru' does not appear to be an IPv4 or IPv6 address
+
+#558 - ssl.SSLWantReadError: The operation did not complete (read) (_ssl.c:2578)
