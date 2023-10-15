@@ -127,7 +127,6 @@ async def process_url(url):
 
                     data_dict[title_text] = next_text
             await database.create_json_data_3(data_dict)
-            print("Обработано 100 ссылок")
         else:
             print(f"Error for {url}:\n{response.status_code}")
     except Exception as e:
