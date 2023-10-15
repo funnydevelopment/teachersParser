@@ -7,7 +7,7 @@ from core import services
 
 async def run_app():
     load_dotenv(".env")
-    await services.get_len_json_data()
+    await services.get_teachers_info()
 
 
 if __name__ == "__main__":
