@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import json
 import os
 from concurrent.futures import ThreadPoolExecutor
 
@@ -120,6 +121,56 @@ async def get_teachers_info():
         await process_batch(batch)
 
 
-async def get_len_json_data():
-    teachers = await database.get_json_data_3()
-    print(len(teachers))
+async def check_graduate(row: dict) -> bool:
+    check_list = [os.getenv("CHECK_WORD_1"), os.getenv("CHECK_WORD_2")]
+    check_word = os.getenv("CHECK_WORD_3")
+    if check_word in row:
+        if row[check_word].lower() in check_list:
+            return True
+    return False
+
+
+async def check_is_related(row: dict) -> bool:
+    check_list = [os.getenv("CHECK_WORD_1"), os.getenv("CHECK_WORD_2")]
+    for key, value in row.items():
+        if value.lower() in check_list:
+            return True
+    return False
+
+
+async def get_personal_data():
+    with open("../data_3.json", "r", encoding="utf-8") as json_file:
+        data = json.load(json_file)
+
+    for row in data:
+        data_list = []
+        full_name = row["ФИО"]
+        data_list.append(full_name)
+
+        try:
+            job_title = row["Занимаемая должность (должности):"]
+        except KeyError:
+            job_title = "empty"
+            print("Такого ключа 'Занимаемая должность (должности)' не существует")
+        data_list.append(job_title)
+
+        try:
+            work_place = row["Фактическое место работы"]
+        except KeyError:
+            work_place = "empty"
+            print("Такого ключа 'Фактическое место работы' не существует")
+        data_list.append(work_place)
+
+        link = row["Ссылка"]
+        data_list.append(link)
+        graduate = await check_graduate(row)
+        data_list.append(graduate)
+        is_related = await check_is_related(row)
+        data_list.append(is_related)
+
+        data_to_write = [data_list]
+
+        try:
+            await database.create_csv_data(data_to_write)
+        except Exception as error:
+            print(f"{datetime.datetime.now()}\nПроизошла ошибка {error}")

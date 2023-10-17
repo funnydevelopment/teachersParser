@@ -1,3 +1,5 @@
+import csv
+import datetime
 import json
 import os
 
@@ -15,6 +17,11 @@ file_3_path = os.path.join(root_directory, file_name_3)
 
 file_name_4 = "data_4.json"
 file_4_path = os.path.join(root_directory, file_name_4)
+
+headers = ["ФИО", "Должность", "Школа", "Ссылка", "Окончил МПГУ", "Употребляются МПГУ"]
+
+file_name_5 = "data_5.csv"
+file_5_path = os.path.join(root_directory, file_name_5)
 
 
 async def create_json_data(school_id: int, website: str) -> None:
@@ -87,5 +94,17 @@ async def create_json_data_4(incoming_data: str) -> None:
         json.dump(data, json_file, ensure_ascii=False, indent=4)
 
 
-async def create_csv_data():
-    pass
+async def create_csv_data(incoming_data: list) -> None:
+    file_exists = os.path.exists(file_5_path)
+
+    with open(file_5_path, mode='a', newline='') as file:
+        writer = csv.writer(file)
+
+        if not file_exists:
+            writer.writerow(headers)
+
+        try:
+            writer.writerows(incoming_data)
+        except Exception as error:
+            print(f"{datetime.datetime.now()}")
+            print(f"Произошла ошибка при добавлении данных{error}")
