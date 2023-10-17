@@ -8,8 +8,10 @@ from core import services
 
 async def run_app():
     load_dotenv(".env")
-    print(f"Скрипт начал работать в {datetime.datetime.now()}")
-    await services.get_len_json_data()
+    # await services.get_schools_urls()
+    # await services.get_teachers_urls()
+    # await services.get_teachers_info()
+    await services.get_personal_data()
 
 
 if __name__ == "__main__":
