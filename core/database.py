@@ -13,6 +13,9 @@ file_2_path = os.path.join(root_directory, file_name_2)
 file_name_3 = "data_3.json"
 file_3_path = os.path.join(root_directory, file_name_3)
 
+file_name_4 = "data_4.json"
+file_4_path = os.path.join(root_directory, file_name_4)
+
 
 async def create_json_data(school_id: int, website: str) -> None:
     try:
@@ -69,3 +72,20 @@ async def get_json_data_3() -> list:
     with open(file_3_path, "r", encoding="utf-8") as json_file:
         data = json.load(json_file)
     return data
+
+
+async def create_json_data_4(incoming_data: str) -> None:
+    try:
+        with open(file_4_path, "r", encoding="utf-8") as json_file:
+            data = json.load(json_file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        data = []
+
+    data.append(incoming_data)
+
+    with open(file_4_path, "w", encoding="utf-8") as json_file:
+        json.dump(data, json_file, ensure_ascii=False, indent=4)
+
+
+async def create_csv_data():
+    pass

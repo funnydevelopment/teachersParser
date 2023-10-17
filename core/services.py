@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import os
 from concurrent.futures import ThreadPoolExecutor
 
@@ -52,48 +53,6 @@ async def get_teachers_urls():
             print(f"Error:\n{response.status_code}")
 
 
-# async def get_teachers_info():
-#     teachers_url = await database.get_json_data_2()
-#     for teacher_url in teachers_url:
-#         for key, value in teacher_url.items():
-#             urls_list = value
-#             for el in urls_list:
-#                 url = el
-#                 async with httpx.AsyncClient() as client:
-#                     response = await client.get(url)
-#
-#                 if response.status_code == 200:
-#                     html = response.text
-#                     soup = BeautifulSoup(html, "html.parser")
-#
-#                     teacher_div = soup.find("div", class_="panel_teacher groupteachers")
-#
-#                     title_spans = teacher_div.find_all("span", class_="title")
-#
-#                     kris_head_div = soup.find("div", class_="kris-component-head")
-#                     h1 = kris_head_div.find("h1")
-#                     fio = h1.text
-#
-#                     data_dict = dict()
-#
-#                     data_dict["ФИО"] = fio
-#                     data_dict["Ссылка"] = url
-#
-#                     for title_span in title_spans:
-#                         next_span = title_span.find_next_sibling("span")
-#                         if next_span:
-#                             title_text = title_span.text
-#                             next_text = next_span.text
-#                             for char in ["\xa0", "\n", "  "]:
-#                                 title_text = title_text.replace(char, "")
-#                                 next_text = next_text.replace(char, "")
-#
-#                             data_dict[title_text] = next_text
-#                     await database.create_json_data_3(data_dict)
-#                 else:
-#                     print(f"Error:\n{response.status_code}")
-
-
 async def process_url(url):
     try:
         async with httpx.AsyncClient() as client:
@@ -128,19 +87,21 @@ async def process_url(url):
                     data_dict[title_text] = next_text
             await database.create_json_data_3(data_dict)
         else:
-            print(f"Error for {url}:\n{response.status_code}")
+            print(
+                f"{datetime.datetime.now()}\nTry error for {url}:{response.status_code}"
+            )
+            await database.create_json_data_4(url)
+
     except Exception as e:
-        print(f"Error for {url}:\n{e}")
+        print(f"{datetime.datetime.now()}\nException error for {url}:\n{e}")
+        await database.create_json_data_4(url)
 
 
 async def process_batch(urls):
     loop = asyncio.get_running_loop()
     with ThreadPoolExecutor() as executor:
         await asyncio.gather(
-            *[
-                await loop.run_in_executor(executor, process_url, url)
-                for url in urls
-            ]
+            *[await loop.run_in_executor(executor, process_url, url) for url in urls]
         )
 
 
@@ -155,7 +116,7 @@ async def get_teachers_info():
     # Разбиваем список URL-ов на пакеты, например, по 100 URL-ов в каждом
     batch_size = 100
     for i in range(0, len(all_urls), batch_size):
-        batch = all_urls[i:i + batch_size]
+        batch = all_urls[i : i + batch_size]
         await process_batch(batch)
 
 
