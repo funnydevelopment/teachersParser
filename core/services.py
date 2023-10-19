@@ -1,7 +1,7 @@
 import asyncio
 import datetime
-import json
 import os
+import re
 from concurrent.futures import ThreadPoolExecutor
 
 import httpx
@@ -77,15 +77,22 @@ async def process_url(url):
             data_dict["Ссылка"] = url
 
             for title_span in title_spans:
-                next_span = title_span.find_next_sibling("span")
-                if next_span:
+                next_sibling = title_span.find_next_sibling(["span", "a"])
+                if next_sibling:
                     title_text = title_span.text
-                    next_text = next_span.text
+                    next_text = next_sibling.text
+
                     for char in ["\xa0", "\n", "  "]:
                         title_text = title_text.replace(char, "")
                         next_text = next_text.replace(char, "")
 
-                    data_dict[title_text] = next_text
+                    if next_sibling.name == "a":
+                        email_title = next_sibling["href"]
+                    else:
+                        email_title = title_text
+
+                    data_dict[email_title] = next_text
+
             await database.create_json_data_3(data_dict)
         else:
             print(
@@ -114,10 +121,9 @@ async def get_teachers_info():
             if isinstance(value, list):
                 all_urls.extend(value)
 
-    # Разбиваем список URL-ов на пакеты, например, по 100 URL-ов в каждом
     batch_size = 100
     for i in range(0, len(all_urls), batch_size):
-        batch = all_urls[i : i + batch_size]
+        batch = all_urls[i: i + batch_size]
         await process_batch(batch)
 
 
@@ -138,33 +144,50 @@ async def check_is_related(row: dict) -> bool:
     return False
 
 
+async def get_email(row: dict) -> str | None:
+    email_pattern = r"(?i)e-mail: (\S+@[\w.]+)"
+    for key, value in row.items():
+        matches = re.findall(email_pattern, value)
+    if matches:
+        return matches[0]
+    return
+
+
 async def get_personal_data():
-    with open("../data_3.json", "r", encoding="utf-8") as json_file:
-        data = json.load(json_file)
+    data = await database.get_json_data_3()
 
     for row in data:
         data_list = []
+
         full_name = row["ФИО"]
         data_list.append(full_name)
 
         try:
             job_title = row["Занимаемая должность (должности):"]
         except KeyError:
-            job_title = "empty"
+            job_title = " "
             print("Такого ключа 'Занимаемая должность (должности)' не существует")
         data_list.append(job_title)
 
         try:
             work_place = row["Фактическое место работы"]
         except KeyError:
-            work_place = "empty"
+            work_place = " "
             print("Такого ключа 'Фактическое место работы' не существует")
         data_list.append(work_place)
 
         link = row["Ссылка"]
         data_list.append(link)
+
+        email = await get_email(row)
+        if email:
+            data_list.append(email)
+        else:
+            data_list.append(" ")
+
         graduate = await check_graduate(row)
         data_list.append(graduate)
+
         is_related = await check_is_related(row)
         data_list.append(is_related)
 
