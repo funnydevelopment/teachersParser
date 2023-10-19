@@ -9,7 +9,7 @@ root_directory = os.getcwd()
 file_name = "data.json"
 file_path = os.path.join(root_directory, file_name)
 
-file_name_2 = "data_2.json"
+file_name_2 = "data_2_copy.json"
 file_2_path = os.path.join(root_directory, file_name_2)
 
 file_name_3 = "data_3.json"
@@ -18,10 +18,10 @@ file_3_path = os.path.join(root_directory, file_name_3)
 file_name_4 = "data_4.json"
 file_4_path = os.path.join(root_directory, file_name_4)
 
-headers = ["ФИО", "Должность", "Школа", "Ссылка", "Окончил МПГУ", "Употребляются МПГУ"]
-
 file_name_5 = "data_5.csv"
 file_5_path = os.path.join(root_directory, file_name_5)
+
+headers = ["ФИО", "Должность", "Школа", "Ссылка", "Почта", "Окончил МПГУ", "Употребляются МПГУ"]
 
 
 async def create_json_data(school_id: int, website: str) -> None:
@@ -97,7 +97,7 @@ async def create_json_data_4(incoming_data: str) -> None:
 async def create_csv_data(incoming_data: list) -> None:
     file_exists = os.path.exists(file_5_path)
 
-    with open(file_5_path, mode='a', newline='') as file:
+    with open(file_5_path, mode="a", newline="") as file:
         writer = csv.writer(file)
 
         if not file_exists:
