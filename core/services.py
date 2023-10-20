@@ -1,7 +1,6 @@
 import asyncio
 import datetime
 import os
-import re
 from concurrent.futures import ThreadPoolExecutor
 
 import httpx
@@ -145,12 +144,10 @@ async def check_is_related(row: dict) -> bool:
 
 
 async def get_email(row: dict) -> str | None:
-    email_pattern = r"(?i)e-mail: (\S+@[\w.]+)"
     for key, value in row.items():
-        matches = re.findall(email_pattern, value)
-    if matches:
-        return matches[0]
-    return
+        if key[0:4] == "mail":
+            return value
+    return None
 
 
 async def get_personal_data():
